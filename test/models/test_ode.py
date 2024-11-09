@@ -39,7 +39,7 @@ t_span = torch.linspace(0, 1, 30)
 
 def test_repr(small_mlp):
     model = NeuralODE(small_mlp)
-    assert type(model.__repr__()) == str and 'NFE' in model.__repr__()
+    assert isinstance(model.__repr__(), str) and 'NFE' in model.__repr__()
 
 
 # TODO: extend to GPU and Multi-GPU
@@ -105,14 +105,14 @@ def test_deepcopy(small_mlp, device):
     model = NeuralODE(small_mlp)
     x = torch.rand(1, 2)
     copy_before_forward = copy.deepcopy(model)
-    assert type(copy_before_forward) == NeuralODE
+    assert isinstance(copy_before_forward, NeuralODE)
 
     # do a forward+backward pass
     y = model(x)
     loss = y.sum()
     loss.backward()
     copy_after_forward = copy.deepcopy(model)
-    assert type(copy_after_forward) == NeuralODE
+    assert isinstance(copy_after_forward, NeuralODE)
 
 
 @pytest.mark.skip(reason='clean up to new API')

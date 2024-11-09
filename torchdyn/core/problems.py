@@ -53,7 +53,7 @@ class ODEProblem(nn.Module):
         """
         super().__init__()
         # instantiate solver at initialization
-        if type(solver) == str:
+        if isinstance(solver, str):
             solver = str_to_solver(solver)
         if solver_adjoint is None:
             solver_adjoint = solver

@@ -49,10 +49,10 @@ def sdeint(
     # make sde to SDEFunc form?
     sde = check_sde(sde)
 
-    if type(t_span) == list:
+    if isinstance(t_span, list):
         t_span = torch.cat(t_span)
 
-    if type(solver) == str:
+    if isinstance(solver, str):
         solver = sde_str_to_solver(solver, sde, bm, x.dtype)
     x, t_span = solver.sync_device_dtype(x, t_span)
     stepping_class = solver.stepping_class

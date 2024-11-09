@@ -34,7 +34,7 @@ class HybridNeuralDE(nn.Module):
         # either take hidden and element of sequence (e.g RNNCell)
         # or h, x_t and c (LSTMCell). Custom implementation assumes call
         # signature of type (x_t, h) and .hidden_size property
-        if type(jump) == nn.modules.rnn.LSTMCell:
+        if isinstance(jump, nn.modules.rnn.LSTMCell):
             self.jump_func = self._jump_latent_cell
         else:
             self.jump_func = self._jump_latent
