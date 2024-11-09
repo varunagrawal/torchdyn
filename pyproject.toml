@@ -54,4 +54,6 @@ filterwarnings = [
         "ignore:Call to deprecated create function EnumValueDescriptor", # pytorch lightning needs tensorboard which has a conflict with python 3.9
         "ignore:Call to deprecated create function FileDescriptor", # pytorch lightning needs tensorboard which has a conflict with python 3.9
         "ignore:Call to deprecated create function OneofDescriptor", # pytorch lightning needs tensorboard which has a conflict with python 3.9
+        "ignore:.+does not have many workers which may be a bottleneck",
+        "ignore:The number of training batches"
     ]
