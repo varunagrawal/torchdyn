@@ -8,7 +8,7 @@ from torchdyn.numerics.sensitivity import (
     _gather_odefunc_interp_adjoint,
 )
 from torchdyn.numerics.odeint import odeint, odeint_mshooting
-from torchdyn.numerics.solvers.ode import str_to_solver, str_to_ms_solver
+from torchdyn.numerics.solvers.ode import str_to_solver
 from torchdyn.core.utils import standardize_vf_call_signature
 from torchdyn.core.defunc import SDEFunc
 from torchdyn.numerics import sdeint
