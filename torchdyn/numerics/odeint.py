@@ -57,9 +57,9 @@ def odeint(f:Callable, x:Tensor, t_span:Union[List, Tensor], solver:Union[str, n
 		t_span = -t_span
 	else: f_ = f
 
-	if type(t_span) == list: t_span = torch.cat(t_span)
+	if isinstance(t_span, list): t_span = torch.cat(t_span)
 	# instantiate the solver in case the user has specified preference via a `str` and ensure compatibility of device ~ dtype
-	if type(solver) == str:
+	if isinstance(solver, str):
 		solver = str_to_solver(solver, x.dtype)
 	x, t_span = solver.sync_device_dtype(x, t_span)
 	stepping_class = solver.stepping_class
@@ -69,15 +69,13 @@ def odeint(f:Callable, x:Tensor, t_span:Union[List, Tensor], solver:Union[str, n
 		if verbose: warn("Running interpolation not yet implemented for `tsit5`")
 		interpolator = None
 
-	if type(interpolator) == str:
+	if isinstance(interpolator, str):
 		interpolator = str_to_interp(interpolator, x.dtype)
 		x, t_span = interpolator.sync_device_dtype(x, t_span)
 
-	# access parallel integration routines with different t_spans for each sample in `x`.
-	if len(t_span.shape) > 1:
-		raise NotImplementedError("Parallel routines not implemented yet, check experimental versions of `torchdyn`")
 	# odeint routine with a single t_span for all samples
-	elif len(t_span.shape) == 1:
+	t_span.size
+	if t_span.dim() == 1:
 		if stepping_class == 'fixed':
 			if atol != odeint.__defaults__[0] or rtol != odeint.__defaults__[1]:
 				warn("Setting tolerances has no effect on fixed-step methods")
@@ -89,6 +87,11 @@ def odeint(f:Callable, x:Tensor, t_span:Union[List, Tensor], solver:Union[str, n
 			dt = init_step(f, k1, x, t, solver.order, atol, rtol)
 			if len(save_at) > 0: warn("Setting save_at has no effect on adaptive-step methods")
 			return _adaptive_odeint(f_, k1, x, dt, t_span, solver, atol, rtol, args, interpolator, return_all_eval, seminorm)
+		else:
+			raise RuntimeError("Invalid stepping class provided")
+	# access parallel integration routines with different t_spans for each sample in `x`.
+	else:
+		raise NotImplementedError("Parallel routines not implemented yet, check experimental versions of `torchdyn`")
 
 
 # TODO (qol) state augmentation for symplectic methods
@@ -114,10 +117,10 @@ def odeint_symplectic(f:Callable, x:Tensor, t_span:Union[List, Tensor], solver:U
 		f_ = lambda t, x: -f(-t, x)
 		t_span = -t_span
 	else: f_ = f
-	if type(t_span) == list: t_span = torch.cat(t_span)
+	if isinstance(t_span, list): t_span = torch.cat(t_span)
 
 	# instantiate the solver in case the user has specified preference via a `str` and ensure compatibility of device ~ dtype
-	if type(solver) == str:
+	if isinstance(solver, str):
 		solver = str_to_solver(solver, x.dtype)
 	x, t_span = solver.sync_device_dtype(x, t_span)
 	stepping_class = solver.stepping_class
@@ -167,7 +170,7 @@ def odeint_mshooting(f:Callable, x:Tensor, t_span:Tensor, solver:Union[str, nn.M
 		TODO: At the moment assumes the ODE to NOT be time-varying. An extension is possible by adaptive the step
 		function of a parallel-in-time solvers.
 	"""
-	if type(solver) == str:
+	if isinstance(solver, str):
 		solver = str_to_ms_solver(solver)
 	x, t_span = solver.sync_device_dtype(x, t_span)
 	# first-guess B0 of shooting parameters
@@ -199,7 +202,7 @@ def odeint_hybrid(f, x, t_span, j_span, solver, callbacks, atol=1e-3, rtol=1e-3,
 		priority (str, optional): Defaults to 'jump'.
 	"""
 	# instantiate the solver in case the user has specified preference via a `str` and ensure compatibility of device ~ dtype
-	if type(solver) == str: solver = str_to_solver(solver, x.dtype)
+	if isinstance(solver, str): solver = str_to_solver(solver, x.dtype)
 	x, t_span = solver.sync_device_dtype(x, t_span)
 	x_shape = x.shape
 	ckpt_counter, ckpt_flag, jnum = 0, False, 0
