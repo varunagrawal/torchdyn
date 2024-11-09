@@ -23,8 +23,6 @@ from torch import Tensor
 import torch.nn as nn
 import torchsde
 
-import warnings
-
 
 class NeuralODE(ODEProblem, pl.LightningModule):
     def __init__(
@@ -51,12 +49,12 @@ class NeuralODE(ODEProblem, pl.LightningModule):
                                        In the second case, the Callable is automatically wrapped for consistency
             solver (Union[str, nn.Module]): 
             order (int, optional): Order of the ODE. Defaults to 1.
-            atol (float, optional): Absolute tolerance of the solver. Defaults to 1e-4.
-            rtol (float, optional): Relative tolerance of the solver. Defaults to 1e-4.
+            atol (float, optional): Absolute tolerance of the solver. Defaults to 1e-3.
+            rtol (float, optional): Relative tolerance of the solver. Defaults to 1e-3.
             sensitivity (str, optional): Sensitivity method ['autograd', 'adjoint', 'interpolated_adjoint']. Defaults to 'autograd'.
             solver_adjoint (Union[str, nn.Module, None], optional): ODE solver for the adjoint. Defaults to None.
-            atol_adjoint (float, optional): Defaults to 1e-6.
-            rtol_adjoint (float, optional): Defaults to 1e-6.
+            atol_adjoint (float, optional): Defaults to 1e-4.
+            rtol_adjoint (float, optional): Defaults to 1e-4.
             integral_loss (Union[Callable, None], optional): Defaults to None.
             seminorm (bool, optional): Whether to use seminorms for adaptive stepping in backsolve adjoints. Defaults to False.
             return_t_eval (bool): Whether to return (t_eval, sol) or only sol. Useful for chaining NeuralODEs in `nn.Sequential`.
@@ -171,15 +169,6 @@ class NeuralSDE(SDEProblem, pl.LightningModule):
         bm=None,
         return_t_eval: bool = True,
     ):
-        super().__init__(
-            defunc=SDEFunc(f=drift_func, g=diffusion_func, order=order),
-            solver=solver,
-            interpolator=interpolator,
-            atol=atol,
-            rtol=rtol,
-            sensitivity=sensitivity,
-        )
-
         """Generic Neural Stochastic Differential Equation. Follows the same design of the `NeuralODE` class.
 
         Args:
@@ -204,6 +193,15 @@ class NeuralSDE(SDEProblem, pl.LightningModule):
         Notes:
             The current implementation is rougher around the edges compared to `NeuralODE`, and is not guaranteed to have the same features.
         """
+        super().__init__(
+            defunc=SDEFunc(f=drift_func, g=diffusion_func, order=order),
+            solver=solver,
+            interpolator=interpolator,
+            atol=atol,
+            rtol=rtol,
+            sensitivity=sensitivity,
+        )
+
         if order != 1:
             raise NotImplementedError
         self.defunc.noise_type, self.defunc.sde_type = noise_type, sde_type
